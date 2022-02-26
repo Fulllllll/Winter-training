@@ -1,19 +1,64 @@
 #include"contact.h"
 
+void check_capacity(Contact* pc)
+{
+	if (pc->sz == pc->capacity)
+	{
+		PeoInfo* temp = (PeoInfo*)realloc(pc->data, (pc->capacity + 5) * sizeof(PeoInfo));
+		if (temp)
+		{
+			pc->data = temp;
+		}
+		else
+		{
+			printf("À©ÈÝ´íÎó\n");
+		}
+		pc->capacity += 5;
+	}
+}
+
+void LoadContact(Contact* pc)
+{
+	FILE* pf = fopen("contact.txt", "r");
+	if (pf == NULL)
+	{
+		printf("%s\n", strerror(errno));
+		return;
+	}
+	PeoInfo buf = { 0 };
+	while (fread(&buf, sizeof(PeoInfo), 1, pf))
+	{
+		check_capacity(pc);
+
+		pc->data[pc->sz++] = buf;
+	}
+	fclose(pf);
+	pf = NULL;
+
+}
+
 void InitContact(Contact* pc)
 {
 	assert(pc);
 	pc->sz = 0;
-	memset(pc->data, 0, sizeof(pc->data));
+	PeoInfo* tmp = (PeoInfo*)malloc(5 * sizeof(PeoInfo));
+	if (tmp)
+	{
+		pc->data = tmp;
+		pc->capacity = 5;
+	}
+	else
+	{
+		printf("³õÊ¼»¯´íÎó");
+	}
+
+	LoadContact(pc);
+	
 }
 void AddContact(Contact* pc)
 {
 	assert(pc);
-	if (pc->sz == MAX)
-	{
-		printf("Í¨Ñ¶Â¼ÒÑÂú,Ìí¼ÓÊ§°Ü\n");
-		return;
-	}
+	check_capacity(pc);
 	printf("ÊäÈëÃû×Ö£º");
 	scanf("%s", pc->data[pc->sz].name);
 	printf("ÊäÈëÄêÁä£º");
@@ -144,4 +189,28 @@ void ClearContact(Contact* pc)
 {
 	memset(pc->data, 0, pc->sz * sizeof(PeoInfo));
 	pc->sz = 0;
+}
+void DestoryContact(Contact* pc)
+{
+	assert(pc);
+	free(pc->data);
+	pc->data = NULL;
+	pc->sz = 0;
+	pc->capacity = 0;
+}
+
+void SaveContact(Contact* pc)
+{
+	FILE* pf = fopen("contact.txt", "w");
+	if (pf == NULL)
+	{
+		printf("%s\n", strerror(errno));
+		return;
+	}
+	for (int i = 0; i < pc->sz; i++)
+	{
+		fwrite(pc->data + i, sizeof(PeoInfo), 1, pf);
+	}
+	fclose(pf);
+	pf = NULL;
 }

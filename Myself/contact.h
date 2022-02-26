@@ -4,7 +4,6 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
-#define MAX 500
 
 typedef struct PeoInfo
 {
@@ -14,10 +13,12 @@ typedef struct PeoInfo
 	char addr[30];
 	char tele[12];
 }PeoInfo;
+
 typedef struct Contact
 {
-	PeoInfo data[MAX];
+	PeoInfo* data;
 	int sz;
+	int capacity;
 }Contact;
 
 void InitContact(Contact* pc);
@@ -28,3 +29,5 @@ void Searchcontact(const Contact* pc);
 void SortByName(Contact* con);
 void Modifycontact(const Contact* pc);
 void ClearContact(Contact* con);
+void DestoryContact(Contact* pc);
+void SaveContact(Contact* pc);
